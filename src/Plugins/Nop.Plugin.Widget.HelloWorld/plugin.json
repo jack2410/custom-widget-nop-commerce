@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "Hello world widget",
+  "SystemName": "Widgets.HelloWorld",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.40" ],
+  "Author": "jack",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widget.HelloWorld.dll",
+  "Description": "First custom widget"
+}
