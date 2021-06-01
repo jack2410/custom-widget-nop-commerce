@@ -81,7 +81,7 @@ namespace Nop.Plugin.Widget.DiscountAlert
             }
             else
             {
-                alert = $"<h3 style=\"margin: 8px 0; color: tomato\">You need {PRICE_TO_DISCOUNT - totalPrice} more to get 5% total bill discount</h3>";
+                alert = $"<h3 style=\"margin: 8px 0; color: tomato\">You need {PRICE_TO_DISCOUNT - totalPrice}{currency} more to get 5% total bill discount</h3>";
             }
             return new HtmlContentViewComponentResult(new HtmlString(alert));
         }
