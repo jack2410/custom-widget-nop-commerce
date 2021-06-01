@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Widgets",
+  "FriendlyName": "Discount Alert",
+  "SystemName": "Widgets.DiscountAlert",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.40" ],
+  "Author": "jack",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Widget.DiscountAlert.dll",
+  "Description": "ProductTag"
+}
