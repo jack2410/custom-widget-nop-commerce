@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Nop.Plugin.Widget.DiscountAlert.Services;
+using Nop.Plugin.Widget.DiscountAlert.Models;
 using Nop.Web.Framework.Components;
 using Nop.Web.Models.ShoppingCart;
 
@@ -63,16 +64,17 @@ namespace Nop.Plugin.Widget.DiscountAlert.Components
                 totalPrice += price * product.Quantity;
             }
 
-            string alert;
-            if (totalPrice >= DISCOUNT_RANGE)
-            {
-                alert = $"<h3 style=\"margin: 8px 0; color: tomato\">You get {totalPrice * DISCOUNT_PERCENTAGE}{currency} discount</h3>";
-            }
-            else
-            {
-                alert = $"<h3 style=\"margin: 8px 0; color: tomato\">You need {DISCOUNT_RANGE - totalPrice}{currency} more to get 5% total bill discount</h3>";
-            }
-            return new HtmlContentViewComponentResult(new HtmlString(alert));
+            bool haveDiscount = totalPrice >= DISCOUNT_PERCENTAGE;
+            DiscountStatus model = new DiscountStatus
+            { 
+                Price = haveDiscount 
+                    ? totalPrice * DISCOUNT_PERCENTAGE
+                    : DISCOUNT_RANGE - totalPrice,
+                DiscountPercentage = DISCOUNT_PERCENTAGE,
+                Currency = currency,
+                HaveDiscount = haveDiscount
+            };
+            return View("~/Plugins/Widget.DiscountAlert/Views/DiscountAlertMessage.cshtml", model);
         }
 
         #endregion

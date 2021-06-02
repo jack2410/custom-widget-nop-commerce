@@ -1,0 +1,22 @@
+﻿@model DiscountStatus
+
+@{
+    Layout = "";
+    Html.AddCssFileParts("~/Plugins/Widget.DiscountAlert/Content/styles.css");
+}
+
+<div>
+    @if (Model.HaveDiscount)
+    {
+        <p class="discount-alert-text">
+            111You get @Model.Price @Model.Currency discount
+        </p>
+    }
+    else
+    {
+        <p>
+            class="discount-alert-text">
+            You need @Model.Price @Model.Currency more to get @Model.DiscountPercentage% total bill discount
+        </p>
+    }
+</div>
