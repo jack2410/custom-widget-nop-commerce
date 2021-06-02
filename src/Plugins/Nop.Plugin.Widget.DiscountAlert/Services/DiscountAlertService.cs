@@ -4,16 +4,16 @@ using Nop.Core;
 using Nop.Services.Cms;
 using Nop.Services.Logging;
 
-namespace Nop.Plugin.Widgets.AccessiBe.Services
+namespace Nop.Plugin.Widget.DiscountAlert.Services
 {
     /// <summary>
     /// Represents the plugin service implementation
     /// </summary>
-    public class AccessileBeService
+    public class DiscountAlertService
     {
         #region Fields
 
-        private readonly AccessiBeSettings _accessiBeSettings;
+        private readonly DiscountAlertSettings _discountAlertSettings;
         private readonly ILogger _logger;
         private readonly IStoreContext _storeContext;
         private readonly IWidgetPluginManager _widgetPluginManager;
@@ -23,13 +23,13 @@ namespace Nop.Plugin.Widgets.AccessiBe.Services
 
         #region Ctor
 
-        public AccessileBeService(AccessiBeSettings accessiBeSettings,
+        public DiscountAlertService(DiscountAlertSettings discountAlertSettings,
             ILogger logger,
             IStoreContext storeContext,
             IWidgetPluginManager widgetPluginManager,
             IWorkContext workContext)
         {
-            _accessiBeSettings = accessiBeSettings;
+            _discountAlertSettings = discountAlertSettings;
             _logger = logger;
             _storeContext = storeContext;
             _widgetPluginManager = widgetPluginManager;
@@ -71,7 +71,7 @@ namespace Nop.Plugin.Widgets.AccessiBe.Services
 
 
                 //log errors
-                var error = $"{AccessiBeDefaults.SystemName} error: {Environment.NewLine}{exception.Message}";
+                var error = $"{DiscountAlertDefaults.SystemName} error: {Environment.NewLine}{exception.Message}";
                 await _logger.ErrorAsync(error, exception, await _workContext.GetCurrentCustomerAsync());
 
                 return default;
@@ -89,7 +89,7 @@ namespace Nop.Plugin.Widgets.AccessiBe.Services
         {
             var customer = await _workContext.GetCurrentCustomerAsync();
             var store = await _storeContext.GetCurrentStoreAsync();
-            return await _widgetPluginManager.IsPluginActiveAsync(AccessiBeDefaults.SystemName, customer, store?.Id ?? 0);
+            return await _widgetPluginManager.IsPluginActiveAsync(DiscountAlertDefaults.SystemName, customer, store?.Id ?? 0);
         }
 
         #endregion
@@ -103,10 +103,10 @@ namespace Nop.Plugin.Widgets.AccessiBe.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the installation script
         /// </returns>
-        public async Task<string> PrepareScriptAsync()
+        /*public async Task<string> PrepareScriptAsync()
         {
-            return await HandleFunctionAsync(() => Task.FromResult(_accessiBeSettings.Script));
-        }
+            return await HandleFunctionAsync(() => Task.FromResult(_discountAlertSettings.Script));
+        }*/
 
         #endregion
     }

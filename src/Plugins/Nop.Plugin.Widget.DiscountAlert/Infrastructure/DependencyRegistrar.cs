@@ -2,9 +2,9 @@
 using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
-using Nop.Plugin.Widgets.AccessiBe.Services;
+using Nop.Plugin.Widget.DiscountAlert.Services;
 
-namespace Nop.Plugin.Widgets.AccessiBe.Infrastructure
+namespace Nop.Plugin.Widget.DiscountAlert.Infrastructure
 {
     /// <summary>
     /// Represents the plugin dependency registrar
@@ -19,7 +19,7 @@ namespace Nop.Plugin.Widgets.AccessiBe.Infrastructure
         /// <param name="appSettings">App settings</param>
         public void Register(IServiceCollection services, ITypeFinder typeFinder, AppSettings appSettings)
         {
-            services.AddScoped<AccessileBeService>();
+            services.AddScoped<DiscountAlertService>();
         }
 
         /// <summary>

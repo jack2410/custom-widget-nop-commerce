@@ -15,14 +15,14 @@ namespace Nop.Plugin.Widgets.AccessiBe.Components
     {
         #region Fields
 
-        private readonly AccessiBeService _accessiBeService;
+        private readonly AccessileBeService _accessiBeService;
         private readonly AccessiBeSettings _accessiBeSettings;
 
         #endregion
 
         #region Ctor
 
-        public AccessiBeViewComponent(AccessiBeService accessiBeService,
+        public AccessiBeViewComponent(AccessileBeService accessiBeService,
             AccessiBeSettings accessiBeSettings)
         {
             _accessiBeService = accessiBeService;

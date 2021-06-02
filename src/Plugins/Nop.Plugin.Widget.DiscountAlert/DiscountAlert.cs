@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 using Nop.Services.Plugins;
 using Nop.Web.Framework.Components;
 using Nop.Services.Cms;
-
+using Nop.Core.Domain.Cms;
+using Nop.Services.Configuration;
 using Nop.Web.Models.ShoppingCart;
+using Nop.Web.Framework.Infrastructure;
+using Nop.Services.Stores;
+using Nop.Services.Localization;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Html;
 
@@ -15,8 +23,39 @@ namespace Nop.Plugin.Widget.DiscountAlert
 {
     public class DiscountAlertWidget : BasePlugin, IWidgetPlugin
     {
-        public bool HideInWidgetList => false;
+        #region Fields
+        private readonly ISettingService _settingService;
+        private readonly IStoreService _storeService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IUrlHelperFactory _urlHelperFactory;
+        private readonly IActionContextAccessor _actionContextAccessor;
+        private readonly DiscountAlertSettings _discountAlertSettings;
+        #endregion
 
+        #region Ctor
+        public DiscountAlertWidget(
+            ISettingService settingService, 
+            IStoreService storeService, 
+            ILocalizationService localizationService,
+            IUrlHelperFactory urlHelperFactory,
+            IActionContextAccessor actionContextAccessor,
+            DiscountAlertSettings discountAlertSettings
+        )
+        {
+            _settingService = settingService;
+            _storeService = storeService;
+            _localizationService = localizationService;
+            _urlHelperFactory = urlHelperFactory;
+            _actionContextAccessor = actionContextAccessor;
+            _discountAlertSettings = discountAlertSettings;
+        }
+        #endregion
+
+        #region Methods
+        public override string GetConfigurationPageUrl()
+        {
+            return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(DiscountAlertDefaults.ConfigurationRouteName);
+        }
         /// <summary>
         /// Gets a name of a view component for displaying widget
         /// </summary>
@@ -24,7 +63,10 @@ namespace Nop.Plugin.Widget.DiscountAlert
         /// <returns>View component name</returns>
         public string GetWidgetViewComponentName(string widgetZone)
         {
-            return "DiscountAlertWidget";
+            if (widgetZone == null)
+                throw new ArgumentNullException(nameof(widgetZone));
+
+            return DiscountAlertDefaults.VIEW_COMPONENT;
         }
 
         /// <summary>
@@ -36,11 +78,23 @@ namespace Nop.Plugin.Widget.DiscountAlert
         /// </returns>
         public Task<IList<string>> GetWidgetZonesAsync()
         {
-            return Task.FromResult<IList<string>>(new List<string> { "discount_alert" });
+            return Task.FromResult<IList<string>>(new List<string> { _discountAlertSettings.WidgetZone });
         }
         public override async Task InstallAsync()
         {
             //Logic during installation goes here...
+            await _settingService.SaveSettingAsync(new DiscountAlertSettings
+            {
+                WidgetZone = PublicWidgetZones.DiscountAlert
+            });
+
+            await _localizationService.AddLocaleResourceAsync(new Dictionary<string, string>
+            {
+                ["Plugins.Widget.DiscountAlert.Fields.Enabled"] = "Enable",
+                ["Plugins.Widget.DiscountAlert.Fields.Enabled.Hint"] = "Check to activate this widget.",
+                ["Plugins.Widget.DiscountAlert.Fields.DiscountRange.Required"] = "Discount range is required",
+                ["Plugins.Widget.DiscountAlert.Fields.DiscountPercentage.Required"] = "Discount percentage is required"
+            });
 
             await base.InstallAsync();
         }
@@ -48,42 +102,25 @@ namespace Nop.Plugin.Widget.DiscountAlert
         public override async Task UninstallAsync()
         {
             //Logic during uninstallation goes here...
+            await _settingService.DeleteSettingAsync<DiscountAlertSettings>();
+
+            var stores = await _storeService.GetAllStoresAsync();
+            var storeIds = new List<int> { 0 }.Union(stores.Select(store => store.Id));
+            foreach (var storeId in storeIds)
+            {
+                var widgetSettings = await _settingService.LoadSettingAsync<WidgetSettings>(storeId);
+                widgetSettings.ActiveWidgetSystemNames.Remove(DiscountAlertDefaults.SystemName);
+                await _settingService.SaveSettingAsync(widgetSettings);
+            }
+
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Widget.DiscountAlert");
 
             await base.UninstallAsync();
         }
-    }
+        #endregion
 
-    [ViewComponent(Name = "DiscountAlertWidget")]
-    public class DiscountAlertWidgetViewComponent : NopViewComponent
-    {
-        public IViewComponentResult Invoke(string widgetZone, IList<ShoppingCartModel.ShoppingCartItemModel> additionalData)
-        {
-            const double PRICE_TO_DISCOUNT = 3000;
-            // For example, if total price is over PRICE_TO_DISCOUNT, the discount is 5%
-            double totalPrice = 0;
-            string currency = string.Empty;
-            foreach (var product in additionalData)
-            {
-                string unitPrice = product.UnitPrice;
-                if (string.IsNullOrEmpty(currency))
-                {
-                    currency = unitPrice.Split(" ")[1];
-                }
-                string unitPriceRemovedCurrency = unitPrice.Split(" ")[0];
-                double price = Convert.ToDouble(unitPriceRemovedCurrency.Replace(".", "").Replace(",", "."));
-                totalPrice += price * product.Quantity;
-            }
-
-            string alert = string.Empty;
-            if (totalPrice >= PRICE_TO_DISCOUNT)
-            {
-                alert = $"<h3 style=\"margin: 8px 0; color: tomato\">You get {totalPrice * 0.05}{currency} discount</h3>";
-            }
-            else
-            {
-                alert = $"<h3 style=\"margin: 8px 0; color: tomato\">You need {PRICE_TO_DISCOUNT - totalPrice}{currency} more to get 5% total bill discount</h3>";
-            }
-            return new HtmlContentViewComponentResult(new HtmlString(alert));
-        }
+        #region Properties
+        public bool HideInWidgetList => false;
+        #endregion
     }
 }

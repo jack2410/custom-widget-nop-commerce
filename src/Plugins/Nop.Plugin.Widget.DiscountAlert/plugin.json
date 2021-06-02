@@ -1,7 +1,7 @@
 ﻿{
   "Group": "Widgets",
   "FriendlyName": "Discount Alert",
-  "SystemName": "Widgets.DiscountAlert",
+  "SystemName": "Widget.DiscountAlert",
   "Version": "1.0",
   "SupportedVersions": [ "4.40" ],
   "Author": "jack",
