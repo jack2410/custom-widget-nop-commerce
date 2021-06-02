@@ -1,13 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Html;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewComponents;
-using Nop.Plugin.Widget.DiscountAlert.Services;
-using Nop.Plugin.Widget.DiscountAlert.Models;
 using Nop.Web.Framework.Components;
 using Nop.Web.Models.ShoppingCart;
+using Nop.Plugin.Widget.DiscountAlert.Services;
+using Nop.Plugin.Widget.DiscountAlert.Models;
 
 namespace Nop.Plugin.Widget.DiscountAlert.Components
 {
@@ -46,34 +42,7 @@ namespace Nop.Plugin.Widget.DiscountAlert.Components
         /// </returns>
         public IViewComponentResult Invoke(string widgetZone, IList<ShoppingCartModel.ShoppingCartItemModel> additionalData)
         {
-            double DISCOUNT_RANGE = _discountAlertSettings.DiscountRange;
-            double DISCOUNT_PERCENTAGE = _discountAlertSettings.DiscountPercentage / 100;
-
-            // For example, if total price is over PRICE_TO_DISCOUNT, the discount is 5%
-            double totalPrice = 0;
-            string currency = string.Empty;
-            foreach (var product in additionalData)
-            {
-                string unitPrice = product.UnitPrice;
-                if (string.IsNullOrEmpty(currency))
-                {
-                    currency = unitPrice.Split(" ")[1];
-                }
-                string unitPriceRemovedCurrency = unitPrice.Split(" ")[0];
-                double price = Convert.ToDouble(unitPriceRemovedCurrency.Replace(".", "").Replace(",", "."));
-                totalPrice += price * product.Quantity;
-            }
-
-            bool haveDiscount = totalPrice >= DISCOUNT_PERCENTAGE;
-            DiscountStatus model = new DiscountStatus
-            { 
-                Price = haveDiscount 
-                    ? totalPrice * DISCOUNT_PERCENTAGE
-                    : DISCOUNT_RANGE - totalPrice,
-                DiscountPercentage = DISCOUNT_PERCENTAGE,
-                Currency = currency,
-                HaveDiscount = haveDiscount
-            };
+            DiscountStatus model = _discountAlertService.CalculateDiscount(additionalData);
             return View("~/Plugins/Widget.DiscountAlert/Views/DiscountAlertMessage.cshtml", model);
         }
 

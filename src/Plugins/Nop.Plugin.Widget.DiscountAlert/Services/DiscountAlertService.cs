@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
-using Nop.Core;
-using Nop.Services.Cms;
-using Nop.Services.Logging;
+using System.Collections.Generic;
+using Nop.Web.Models.ShoppingCart;
+using Nop.Plugin.Widget.DiscountAlert.Models;
 
 namespace Nop.Plugin.Widget.DiscountAlert.Services
 {
@@ -12,30 +11,47 @@ namespace Nop.Plugin.Widget.DiscountAlert.Services
     public class DiscountAlertService
     {
         #region Fields
-
         private readonly DiscountAlertSettings _discountAlertSettings;
-        private readonly ILogger _logger;
-        private readonly IStoreContext _storeContext;
-        private readonly IWidgetPluginManager _widgetPluginManager;
-        private readonly IWorkContext _workContext;
-
         #endregion
 
         #region Ctor
-
-        public DiscountAlertService(DiscountAlertSettings discountAlertSettings,
-            ILogger logger,
-            IStoreContext storeContext,
-            IWidgetPluginManager widgetPluginManager,
-            IWorkContext workContext)
+        public DiscountAlertService(DiscountAlertSettings discountAlertSettings)
         {
             _discountAlertSettings = discountAlertSettings;
-            _logger = logger;
-            _storeContext = storeContext;
-            _widgetPluginManager = widgetPluginManager;
-            _workContext = workContext;
         }
+        #endregion
 
+        #region Methods
+        public DiscountStatus CalculateDiscount(IList<ShoppingCartModel.ShoppingCartItemModel> additionalData)
+        {
+            double DISCOUNT_RANGE = _discountAlertSettings.DiscountRange;
+            double DISCOUNT_PERCENTAGE = _discountAlertSettings.DiscountPercentage / 100;
+
+            double totalPrice = 0;
+            string currency = string.Empty;
+            foreach (var product in additionalData)
+            {
+                string unitPrice = product.UnitPrice;
+                if (string.IsNullOrEmpty(currency))
+                {
+                    currency = unitPrice.Split(" ")[1];
+                }
+                string unitPriceRemovedCurrency = unitPrice.Split(" ")[0];
+                double price = Convert.ToDouble(unitPriceRemovedCurrency.Replace(".", "").Replace(",", "."));
+                totalPrice += price * product.Quantity;
+            }
+
+            bool haveDiscount = totalPrice >= DISCOUNT_PERCENTAGE;
+            return new DiscountStatus
+            {
+                Price = haveDiscount
+                    ? totalPrice * DISCOUNT_PERCENTAGE
+                    : DISCOUNT_RANGE - totalPrice,
+                DiscountPercentage = DISCOUNT_PERCENTAGE,
+                Currency = currency,
+                HaveDiscount = haveDiscount
+            };
+        }
         #endregion
     }
 }

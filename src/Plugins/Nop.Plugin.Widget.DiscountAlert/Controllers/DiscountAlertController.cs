@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Cms;
-using Nop.Plugin.Widget.DiscountAlert.Models;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
@@ -11,6 +10,7 @@ using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
+using Nop.Plugin.Widget.DiscountAlert.Models;
 
 namespace Nop.Plugin.Widget.DiscountAlert.Controllers
 {
