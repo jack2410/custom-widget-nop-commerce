@@ -3,7 +3,7 @@ using Nop.Plugin.Widget.DiscountAlert.Models;
 using Nop.Services.Localization;
 using Nop.Web.Framework.Validators;
 
-namespace Nop.Plugin.Widgets.AccessiBe.Validators
+namespace Nop.Plugin.Widget.DiscountAlert.Validators
 {
     /// <summary>
     /// Represents configuration model validator
